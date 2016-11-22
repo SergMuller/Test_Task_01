@@ -34,7 +34,7 @@
 			</label>
 		</p>
 		<p>
-			<input type="button" value="Submit" onclick="checkAddress()">
+			<input type="button" value="Submit" onclick="sendAddress()">
 		</p>
 		<p id="status"></p>
 	</form>

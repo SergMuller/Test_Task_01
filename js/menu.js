@@ -23,13 +23,54 @@ var arrTests = [
 					'case': 'Non-numeric',
 					'data': '"a",1,"a"',
 					'result': 2
-				}];
+				}
+			],
+	adrTests = [
+	            {
+	            	'case': 'Empty',
+	            	'data': {},
+	            	'result': -1,
+	            },
+	            {
+	            	'case': 'Missing data',
+	            	'data': {
+	            		'firstname': '',
+	            		'lastname': '',
+	            		'dob': '',
+	            		'house': '',
+	            		'zip': ''
+	            	},
+	            	'result': -1,
+	            },
+	            {
+	            	'case': 'Normal found',
+	            	'data': {
+	            		'firstname': 'John',
+	            		'lastname': 'Doe',
+	            		'dob': '10/10/1976',
+	            		'house': '23',
+	            		'zip': '12345'
+	            	},
+	            	'result': 0,
+	            },
+	            {
+	            	'case': 'Normal not found',
+	            	'data': {
+	            		'firstname': 'Jane',
+	            		'lastname': 'Doe',
+	            		'dob': '10/10/1976',
+	            		'house': '23',
+	            		'zip': '12345'
+	            	},
+	            	'result': -1,
+	            }
+	        ];
 	
 function formatZipcode(zipcode) {
 	if (zipcode) {
 		zipcode = zipcode.replace(/[^0-9]/g, '').substring(0, 9);
 		if (zipcode.length > 5) {
-			return  zipcode.replace(/(\d{5})(\d{4})/, "$1-$2");
+			return zipcode.replace(/(\d{5})(\d{4})/, "$1-$2");
 		}
 		return zipcode;
 	} else {
@@ -37,31 +78,46 @@ function formatZipcode(zipcode) {
 	}
 }
 
-function checkAddress(){
+function checkAddress(address, runAsync, testCase, expected){
+	if ((typeof runAsync === "undefined") || (runAsync === null)) runAsync = true;
+	if ((typeof testCase === "undefined") || (testCase === null)) testCase = 'Unknown';
+	if ((typeof expected === "undefined") || (expected === null)) expected = '';
+	
 	var payload = {};
-	payload['firstname'] = $('#firstname').val();
-	payload['lastname'] = $('#lastname').val();
-	payload['dob'] = $('#dob').val();
-	payload['house'] = $('#house').val();
-	payload['zip'] = $('#zip').val();
-	$.post('api/processAddress.cfm',
-			payload,
-			function(response){
-				var statusText = '';
-				if ('result' in response && response.result >= 0) {
-					$('#status').text('');
-					$('#city').val(response.city);
-					$('#hidden_fields').slideDown();
-				} else {
-					$('#status').text('Address not found');
-					$('#city').val('');
-					$('#hidden_fields').slideUp();
-				}
-				$('#pivot_element').text(statusText);
-				
-			},
-			'json'
-	);
+	payload['firstname'] = address.firstname;
+	payload['lastname'] = address.lastname;
+	payload['dob'] = address.dob;
+	payload['house'] = address.house;
+	payload['zip'] = address.zip;
+	$.ajax({
+		url: 'api/processAddress.cfm',
+		type: 'post',
+		data: payload,
+		async: runAsync,
+		dataType: 'json'
+	}).done(function(response){
+		if (runAsync) {
+			var statusText = '';
+			if ('result' in response && response.result >= 0) {
+				$('#status').text('');
+				$('#city').val(response.city);
+				$('#hidden_fields').slideDown();
+			} else {
+				$('#status').text('Address not found');
+				$('#city').val('');
+				$('#hidden_fields').slideUp();
+			}
+			$('#pivot_element').text(statusText);
+		} else {
+			var status = '';
+			if (response.result == expected) {
+				status = '<span class="success">passed</span>';
+			} else {
+				status = '<span class="fail">failed</span>';
+			}
+			$('#test_log').append('<p>[Address] ' + testCase + ': ' + status + '</p>');
+		}
+	});
 }
 
 function checkArray(arrData, runAsync, testCase, expected) {
@@ -69,48 +125,54 @@ function checkArray(arrData, runAsync, testCase, expected) {
 	if ((typeof testCase === "undefined") || (testCase === null)) testCase = 'Unknown';
 	if ((typeof expected === "undefined") || (expected === null)) expected = '';
 	
-	var payload = {},
-		result = '';
-	payload['arrToTest'] = arrData;
+	var payload = {};
+	payload['arrToTest'] = JSON.stringify(arrData);
 	$.ajax({
 		url: 'api/processPivot.cfm',
 		type: 'post',
 		data: payload,
 		async: runAsync,
-		dataType: 'json',
-		success:
-			function(response){				
-				if (runAsync) {
-					var statusText = '';
-					if ('result' in response && response.result >= 0) {
-						statusText = 'Pivot element: ' + response.element + '(#' + response.result + ')';
-					} else {
-						statusText = 'Pivot element not found';
-					}
-					$('#pivot_element').text(statusText);
-				} else {
-					var status = '';
-					if (response.result == expected) {
-						status = '<span class="success">passed</span>';
-					} else {
-						status = '<span class="fail">failed</span>';
-					}
-					$('#test_log').append('<p>' + testCase + ': ' + status + '</p>');
-				}
-				
-				result = response.resultl;
+		dataType: 'json'			
+	}).done(function(response){
+		if (runAsync) {
+			var statusText = '';
+			if ('result' in response && response.result >= 0) {
+				statusText = 'Pivot element: ' + response.element + '(#' + response.result + ')';
+			} else {
+				statusText = 'Pivot element not found';
 			}
-			
+			$('#pivot_element').text(statusText);
+		} else {
+			var status = '';
+			if (response.result == expected) {
+				status = '<span class="success">passed</span>';
+			} else {
+				status = '<span class="fail">failed</span>';
+			}
+			$('#test_log').append('<p>[Array] ' + testCase + ': ' + status + '</p>');
+		}
 	});
-	return result;
 }
 
 function runTests() {
 	var status = '';
 	$('#test_log').empty();
 	for (var i = 0; i < arrTests.length; i++) {
-		checkArray(JSON.stringify(arrTests[i].data), false, arrTests[i].case, arrTests[i].result);		
+		checkArray(arrTests[i].data, false, arrTests[i].case, arrTests[i].result);		
 	}
+	for (var i = 0; i < adrTests.length; i++) {
+		checkAddress(adrTests[i].data, false, adrTests[i].case, adrTests[i].result);		
+	}
+}
+
+function sendAddress() {
+	checkAddress({
+		'firstname': $('#firstname').val(),
+		'lastname': $('#lastname').val(),
+		'dob': $('#dob').val(),
+		'house': $('#house').val(),
+		'zip': $('#zip').val()
+	});
 }
 
 $(document).ready(function(){
