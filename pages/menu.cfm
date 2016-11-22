@@ -36,5 +36,14 @@
 		<p>
 			<input type="button" value="Submit" onclick="checkAddress()">
 		</p>
+		<p id="status"></p>
 	</form>
+</div>
+<div>
+	<h3>Test Section</h3>
+	<form>
+		<p><input type="button" value="Run Tests" onclick="runTests()"></p>
+	</form>
+	<div id="test_log">
+	</div>
 </div>

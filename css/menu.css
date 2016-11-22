@@ -1,3 +1,6 @@
 @CHARSET "UTF-8";
 
 #hidden_fields {display: none;}
+
+.success {color: green;}
+.fail {color: red;}
