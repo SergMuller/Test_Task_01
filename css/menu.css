@@ -1,6 +1,55 @@
 @CHARSET "UTF-8";
 
+body {
+	background: #ccc;
+	font: 18px sans-serif;
+	padding: 40px 0;
+}
+.body-top {
+	text-align: center;
+}
+
 #hidden_fields {display: none;}
 
-.success {color: green;}
-.fail {color: red;}
+.success {color: #8e8;}
+.fail {color: #faa;}
+
+ul.nav {
+	list-style: none;
+	margin: 0 auto;
+	width: 90%;
+	padding: 0 20px;
+}
+ul.nav li {
+	padding: 8px 0;
+}
+ul.nav a,
+ul.nav a:visited {
+	display: block;
+	padding: 6px 8px;
+	color: #444;
+	text-decoration: none;
+}
+ul.nav a:hover {
+	background: #ddd;
+	box-shadow: 2px 2px #aaa;
+	margin: -1px 0 1px 0;
+}
+
+.section {
+	margin: 0 auto;
+	width: 90%;
+	padding: 20px;
+	background: #888;
+	box-shadow: 8px 8px #444;
+	margin-top: 40px;
+	color: #eee;
+}
+.section h3 {
+	color: #eed;
+}
+
+input {
+	padding: 6px 8px;
+	font: 18px sans-serif;
+}

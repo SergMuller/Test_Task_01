@@ -97,17 +97,19 @@ function checkAddress(address, runAsync, testCase, expected){
 		dataType: 'json'
 	}).done(function(response){
 		if (runAsync) {
-			var statusText = '';
+			var statusText = '',
+				className = 'success';
 			if ('result' in response && response.result >= 0) {
-				$('#status').text('');
+				statusText = 'Address found';
 				$('#city').val(response.city);
 				$('#hidden_fields').slideDown();
 			} else {
-				$('#status').text('Address not found');
+				statusText = 'Address not found';
 				$('#city').val('');
 				$('#hidden_fields').slideUp();
+				className = 'fail';
 			}
-			$('#pivot_element').text(statusText);
+			$('#status').removeClass().addClass(className).text(statusText);
 		} else {
 			var status = '';
 			if (response.result == expected) {
@@ -121,6 +123,7 @@ function checkAddress(address, runAsync, testCase, expected){
 }
 
 function checkArray(arrData, runAsync, testCase, expected) {
+	if ((typeof arrData === "undefined") || (arrData === null)) arrData = $('#pivot_array').val();
 	if ((typeof runAsync === "undefined") || (runAsync === null)) runAsync = true;
 	if ((typeof testCase === "undefined") || (testCase === null)) testCase = 'Unknown';
 	if ((typeof expected === "undefined") || (expected === null)) expected = '';
@@ -135,13 +138,15 @@ function checkArray(arrData, runAsync, testCase, expected) {
 		dataType: 'json'			
 	}).done(function(response){
 		if (runAsync) {
-			var statusText = '';
+			var statusText = '',
+				className = 'success';
 			if ('result' in response && response.result >= 0) {
 				statusText = 'Pivot element: ' + response.element + '(#' + response.result + ')';
 			} else {
 				statusText = 'Pivot element not found';
+				className = 'fail';
 			}
-			$('#pivot_element').text(statusText);
+			$('#pivot_element').removeClass().addClass(className).text(statusText);
 		} else {
 			var status = '';
 			if (response.result == expected) {
@@ -179,7 +184,7 @@ $(document).ready(function(){
 	$('#pivot_array').on("propertychange keyup change paste", function(event){
 		var KeyID = event.keyCode;
 		if (KeyID >= 48 && KeyID <= 57 && this.value.length > 4) {
-			checkArray(this.value);
+			checkArray();
 		}
 	});
 	$('#zip').on("propertychange keyup change paste", function(event){

@@ -7,8 +7,10 @@
 		</cfoutput>
 	</head>
 	<body>
-		<h2>Greetings!</h2>
-		<p>Please select action</p>
+		<div class="body-top">
+			<h2>Greetings!</h2>
+			<p>Welcome to this mini site. Please check the sections below.</p>
+		</div>
 		<div class="content">
 <cfinclude template="../pages/#page#.cfm" runonce="true">
 		</div>
